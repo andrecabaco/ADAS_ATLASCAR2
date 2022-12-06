@@ -3,5 +3,8 @@ This repository will monitor the development of a driving support system for the
 
 This project will be the object of study in the context of the author's master's thesis in Mechanical Engineering.
 
+---
+
 Author: André Filipe Mendes Cabaço
+
 Graduate advisor: Professor Vítor Manuel Ferreira dos Santos
