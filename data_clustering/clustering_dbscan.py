@@ -31,7 +31,7 @@ def pointcloud_callback(data):
                     if distance < min_distance:
                         min_distance = distance
 
-        #print("Cluster", i + 1, "points:", cluster_points)
+        print("Cluster", i + 1, "points:", len(cluster_points))
         print("Minimum distance within Cluster", i + 1, ":", min_distance)
 
 def main():
