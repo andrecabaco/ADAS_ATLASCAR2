@@ -8,8 +8,10 @@ from sklearn.cluster import DBSCAN
 import numpy as np
 import sys
 from geometry_msgs.msg import Point
+from tf.transformations import euler_from_quaternion
+from tf.transformations import quaternion_matrix
 
-def publish_markers(clusters, cluster_labels):
+def publish_markers(clusters, cluster_labels, reference_frame):
     marker_array = MarkerArray()
 
     for i, cluster_points in enumerate(clusters):
@@ -21,9 +23,9 @@ def publish_markers(clusters, cluster_labels):
         marker.id = i
         marker.type = Marker.CUBE_LIST
         marker.action = Marker.ADD
-        marker.scale.x = 0.01
-        marker.scale.y = 0.01
-        marker.scale.z = 0.01
+        marker.scale.x = 0.1
+        marker.scale.y = 0.1
+        marker.scale.z = 0.1
 
         # Set the color based on the cluster label
         if cluster_labels[i] == -1:
@@ -40,6 +42,11 @@ def publish_markers(clusters, cluster_labels):
 
         # Set the points of the marker to the cluster points
         marker.points = [Point(p[0], p[1], p[2]) for p in cluster_points]
+
+        # Calculate the distance between the reference frame and the cluster's centroid
+        centroid = np.mean(cluster_points, axis=0)
+        distance = np.linalg.norm(centroid - reference_frame)
+        print("Cluster", i + 1, "distance:", distance)
 
         marker_array.markers.append(marker)
 
@@ -67,7 +74,13 @@ def pointcloud_callback(data):
         else:
             print("Probability of a pedestrian or a vulnerable user of the road")
 
-    publish_markers(clusters, labels)
+    # Get the transformation matrix of the reference frame
+    tf_matrix = quaternion_matrix([0, 0, 0, 1])  # Replace with the actual quaternion
+
+    # Extract the translation component from the transformation matrix
+    reference_frame = tf_matrix[:3, 3]
+
+    publish_markers(clusters, labels, reference_frame)
 
 def main():
     rospy.init_node('pointcloud_cluster', anonymous=True)
@@ -78,4 +91,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
