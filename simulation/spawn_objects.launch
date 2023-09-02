@@ -1,0 +1,35 @@
+<launch>
+  <!-- Spawn Gazebo model 1 -->
+  <node name="spawn_model_1" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-sdf -model pickup1
+              -x -146.039 -y -63.083 -z 0.0 -Y 3.087
+              -file /home/pabundz/.gazebo/models/pickup/model.sdf"/>
+
+  <!-- Spawn Gazebo model 2 -->
+  <node name="spawn_model_2" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-sdf -model pickup2
+              -x -100.588 -y -65.913 -z 0.0 -Y 3.091
+              -file /home/pabundz/.gazebo/models/pickup/model.sdf"/>
+
+  <!-- Spawn Gazebo model 3 -->
+  <node name="spawn_model_3" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-sdf -model pickup3
+              -x -29.094 -y -70.658 -z 0.0 -Y 3.099
+              -file /home/pabundz/.gazebo/models/pickup/model.sdf"/>
+
+
+  <!-- Spawn Gazebo model 4 -->
+  <node name="spawn_model_4" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-sdf -model person1
+              -x -121.613 -y -69.338 -z 0.0 -Y -1.646
+              -file /home/pabundz/.gazebo/models/person_walking/model.sdf"/>
+
+  <!-- Spawn Gazebo model 5 -->
+  <node name="spawn_model_5" pkg="gazebo_ros" type="spawn_model" respawn="false" output="screen"
+        args="-sdf -model person2
+              -x -47.204 -y -79.906 -z 0.0 -Y 1.499
+              -file /home/pabundz/.gazebo/models/person_walking/model.sdf"/>
+
+
+  <!-- Add more spawn_model nodes for additional models -->
+</launch>
