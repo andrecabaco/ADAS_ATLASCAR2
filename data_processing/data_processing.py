@@ -11,13 +11,14 @@ from geometry_msgs.msg import Point
 from tf.transformations import euler_from_quaternion
 from tf.transformations import quaternion_matrix
 
+region_x_min = 2.0
+region_x_max = 13.5  # 10m + 7m/2 (from base_link)
+region_y_min = -1.0
+region_y_max = 1.0  # 10m / 2
+region_z_min = 0.3
+region_z_max = 0.8  
+
 def check_clusters_in_region(clusters):
-    region_x_min = 2.0
-    region_x_max = 13.5  # 10m + 7m/2 (from base_link)
-    region_y_min = -1.0
-    region_y_max = 1.0  # 10m / 2
-    region_z_min = 0.3
-    region_z_max = 0.8  
     for i, cluster_points in enumerate(clusters):
         centroid = np.mean(cluster_points, axis=0)
         print (centroid)
@@ -63,6 +64,7 @@ def publish_markers(clusters, cluster_labels, reference_frame, prev_distances, p
         furthest_distance_x = np.max(np.abs(cluster_points[:, 0] - centroid[0]))
         furthest_distance_y = np.max(np.abs(cluster_points[:, 1] - centroid[1]))
 
+
         # Add Text Markers with cluster number, distance, and number of points
         text_marker = Marker()
         text_marker.header.frame_id = "base_link"  # Update with your desired frame ID
@@ -94,6 +96,32 @@ def publish_markers(clusters, cluster_labels, reference_frame, prev_distances, p
             prev_times[i] = rospy.Time.now()
             text_marker.text = f"Cluster {i + 1}\nDistance: {distance:.2f} m\nPoints: {len(cluster_points)}"
 
+        #TTC calculation
+        if region_x_min <= centroid[0] <= region_x_max and region_y_min <= centroid[1] <= region_y_max and region_z_min <= centroid[2] <= region_z_max and relative_velocity>=0.1:
+            TTC = round(distance/relative_velocity,2)
+            print(TTC)
+
+            # Add Text Markers with cluster number, distance, and number of points
+            ttc_marker = Marker()
+            ttc_marker.header.frame_id = "base_link"  # Update with your desired frame ID
+            ttc_marker.header.stamp = rospy.Time.now()
+            ttc_marker.ns = "ttc_markers"
+            ttc_marker.id = i
+            ttc_marker.type = Marker.TEXT_VIEW_FACING
+            ttc_marker.action = Marker.ADD
+            ttc_marker.pose.position.x = centroid[0]
+            ttc_marker.pose.position.y = centroid[1]
+            ttc_marker.pose.position.z = centroid[2] + 0.5  # Adjust the height of the text above the cluster centroid
+            ttc_marker.scale.z = 0.3
+            ttc_marker.color.r = 1.0
+            ttc_marker.color.g = 0.0
+            ttc_marker.color.b = 0.0
+            ttc_marker.color.a = 1.0
+
+            ttc_marker.text = f"TTC: {TTC} s"
+
+            marker_array.markers.append(ttc_marker)
+
         print("Cluster " + str(i + 1) + " - Distance: " + str(distance) + " m | Velocity: " + str(relative_velocity) + " m/s")
 
         # Update the previous distance and time for the next iteration
@@ -123,10 +151,12 @@ def publish_markers(clusters, cluster_labels, reference_frame, prev_distances, p
         marker_array.markers.append(marker)
         marker_array.markers.append(text_marker)
         marker_array.markers.append(ellipse_marker)
+        
 
     # Check if there is any cluster found in the specified region
     found_in_region = check_clusters_in_region(clusters)
     print("Cluster found in region:", found_in_region)
+
 
     # Add a region marker
     region_marker = Marker()
